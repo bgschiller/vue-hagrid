@@ -1,4 +1,4 @@
-## vuex-hagrid
+## vue-hagrid
 
 [![Build Status](https://travis-ci.org/bgschiller/vue-hagrid.svg?branch=master)](https://travis-ci.org/bgschiller/vue-hagrid)
 
