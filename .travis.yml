@@ -11,7 +11,7 @@ before_install:
   - sudo dpkg -i google-chrome*.deb
 script:
    - npm run test
-   - cd demo && npm run build
+   - cd demo && yarn && npm run build
 deploy:
   provider: pages
   skip-cleanup: true
