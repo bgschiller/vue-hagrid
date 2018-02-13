@@ -28,6 +28,11 @@ module.exports = function(config) {
         ],
       },
       devtool: 'inline-source-map',
+      resolve: {
+        alias: {
+          vue: 'vue/dist/vue.js',
+        },
+      },
     },
 
     webpackMiddleware: {
