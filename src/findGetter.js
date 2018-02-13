@@ -5,7 +5,6 @@ export default function findGetter(store, actionName) {
    Walk the store, looking for an entry for `actionName` in a module's hagridResources.
    If it's found, return the fully qualified (namespaced) name of the associated getter.
   */
-  debugger;
   const getterName = _findGetter(store._modules.root, actionName, '');
   assert(getterName, `unable to find action: ${actionName}`);
   assert(getterName in store.getters, `expected getter "${getterName}" for ${actionName} to exist`);
@@ -44,7 +43,11 @@ function _findGetter(modul, actionName, prefix) {
     }
   }
 
-  if (modul._rawModule.actions[actionName] && !getterName) {
+  if (
+    modul._rawModule.actions &&
+    modul._rawModule.actions[actionName] &&
+    !getterName
+  ) {
     throw new Error(`Found action "${prefix}${actionName}", but no getter is listed in hagridResources`);
   }
 

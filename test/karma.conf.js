@@ -5,7 +5,7 @@ module.exports = function(config) {
     files: [
       {pattern: '*.spec.js', watched: false},
     ],
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'sinon'],
     reporters: ['spec'],
     preprocessors: {
       '*.spec.js': ['webpack', 'sourcemap'],

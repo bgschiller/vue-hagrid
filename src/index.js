@@ -1,11 +1,13 @@
 import findGetter from './findGetter';
 
-class Hagrid {
+export class Hagrid {
   constructor() {
     this.subscribers = {}; // { actionName: [vm._uid] }
     this.watchers = {}; // { actionName: unsubscribe() }
+    this.getterValues = {};
   }
-  subscribe(uid, actionNames) {
+  subscribe(uid, _actionNames) {
+    const actionNames = typeof _actionNames === typeof '' ? [_actionNames] : _actionNames;
     actionNames.forEach((actionName) => {
       if (this.subscribers[actionName]) {
         if (this.subscribers[actionName].indexOf(uid) > -1) {
@@ -37,10 +39,21 @@ class Hagrid {
     const getterName = findGetter(this.store, actionName);
     const removeWatcher = this.store.watch(
       (_state, getters) => getters[getterName],
-      (val) => this.store.dispatch(actionName, val));
+      (val) => {
+        this.getterValues[getterName] = val;
+        this.store.dispatch(actionName, val);
+      });
     this.watchers[actionName] = removeWatcher;
+
+    const getterVal = this.store.getters[getterName];
+    if (!(getterName in this.getterValues) && getterVal !== this.getterValues[getterName]) {
+      this.store.dispatch(actionName, getterVal);
+    }
   }
   removeWatcher(actionName) {
+    if (!this.watchers[actionName]) {
+      throw new Error(`uh oh, no watcher for action "${actionName}". Something has gone wrong...`);
+    }
     this.watchers[actionName]();
     delete this.watchers[actionName];
   }

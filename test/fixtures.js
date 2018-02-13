@@ -16,30 +16,34 @@ export const counterModule = {
   },
 };
 
-export const moviesModule = {
-  state: { movies: [], status: 'unfetched', genre: null },
-  mutations: {
-    FETCH(state) { state.status = 'fetching'; },
-    SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
-    SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
-  },
-  actions: {
-    fetch({ commit }, { genre }) {
-      commit('FETCH');
-      getMovies({ genre })
-        .then(movies => commit('SET_MOVIES', movies));
+export const createMoviesModule = (getMovies = getMovies) => {
+  return {
+    state: { movies: [], status: 'unfetched', genre: null },
+    mutations: {
+      FETCH(state) { state.status = 'fetching'; },
+      SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
+      SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
     },
-    setGenre({ commit }, genre) {
-      commit('SET_GENRE', genre);
+    actions: {
+      fetch({ commit }, { genre }) {
+        commit('FETCH');
+        getMovies({ genre })
+          .then(movies => commit('SET_MOVIES', movies));
+      },
+      setGenre({ commit }, genre) {
+        commit('SET_GENRE', genre);
+      },
     },
-  },
-  getters: {
-    moviesDependencies(state) { return { genre: state.genre }; },
-  },
-  hagridResources: {
-    fetch: 'moviesDependencies',
-  },
+    getters: {
+      moviesDependencies(state) { return { genre: state.genre }; },
+    },
+    hagridResources: {
+      fetch: 'moviesDependencies',
+    },
+  };
 };
+
+export const moviesModule = createMoviesModule();
 
 export const slashyModule = {
   state: {},
