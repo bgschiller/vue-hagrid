@@ -1,9 +1,9 @@
 // Karma configuration
-module.exports = function(config) {
+module.exports = function karmaConfig(config) {
   config.set({
     // ... normal karma configuration
     files: [
-      {pattern: '*.spec.js', watched: false},
+      { pattern: '*.spec.js', watched: false },
     ],
     frameworks: ['mocha', 'chai', 'sinon'],
     reporters: ['spec'],
@@ -23,7 +23,7 @@ module.exports = function(config) {
           {
             test: /\.js$/,
             loader: 'babel-loader',
-            exclude: /node_modules/
+            exclude: /node_modules/,
           },
         ],
       },
@@ -38,7 +38,7 @@ module.exports = function(config) {
     webpackMiddleware: {
       // webpack-dev-middleware configuration
       // i. e.
-      stats: 'errors-only'
+      stats: 'errors-only',
     },
     // coverageReporter: {
     //   dir: './coverage',

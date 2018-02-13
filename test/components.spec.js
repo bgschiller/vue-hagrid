@@ -4,7 +4,7 @@ import { Hagrid } from '../src/index';
 import { counterModule } from './fixtures';
 
 const TestComponent = {
-  template: `<div class="test" />`,
+  template: '<div class="test" />',
   hagridActions: ['incr'],
 };
 

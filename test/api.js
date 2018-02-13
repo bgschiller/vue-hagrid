@@ -1,7 +1,3 @@
-export const getMovies = ({ genre }) =>
-  getMoviesforGenre(genre) // like: fetch(`/movies?genre=${genre}`)
-    .then(resp => resp.json());
-
 const moviesByGenre = {
   comedy: [
     'The Wolf of Wall Street',
@@ -41,6 +37,9 @@ const moviesByGenre = {
   ],
 };
 
-const getMoviesforGenre = (genre) => {
-  return Promise.resolve(moviesByGenre[genre] || []);
-};
+const getMoviesforGenre = genre =>
+  Promise.resolve(moviesByGenre[genre] || []);
+
+export const getMovies = ({ genre }) =>
+  getMoviesforGenre(genre) // like: fetch(`/movies?genre=${genre}`)
+    .then(resp => resp.json());

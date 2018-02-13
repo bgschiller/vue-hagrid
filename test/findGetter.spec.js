@@ -78,20 +78,23 @@ describe('findGetter', () => {
     const store = new Vuex.Store(moviesModule);
     assert.throws(
       () => findGetter(store, 'nonExistentAction'),
-      'unable to find action: nonExistentAction');
+      'unable to find action: nonExistentAction',
+    );
   });
 
   it('reports an error when action exists, but getter does not', () => {
     const store = new Vuex.Store(badGetterName);
     assert.throws(
       () => findGetter(store, 'doStuff'),
-      'Found hagridResource for action "doStuff", but no getter called "noGetterWithThisName" exists...');
+      'Found hagridResource for action "doStuff", but no getter called "noGetterWithThisName" exists...',
+    );
   });
 
   it('advises when hagridResources is missing', () => {
     const store = new Vuex.Store({ ...counterModule, hagridResources: undefined });
     assert.throws(
       () => findGetter(store, 'incr'),
-      'Found action "incr", but no getter is listed in hagridResources');
+      'Found action "incr", but no getter is listed in hagridResources',
+    );
   });
 });

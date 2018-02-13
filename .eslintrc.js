@@ -8,6 +8,11 @@ module.exports = {
   },
   env: {
     browser: true,
+    mocha: true,
+  },
+  globals: {
+    assert: true,
+    sinon: true,
   },
   extends: 'airbnb-base',
   // check if imports actually resolve
@@ -42,5 +47,9 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'import/prefer-default-export': 'off',
+    'no-underscore-dangle': 'off',
+    'no-plusplus': ['error', { allowForLoopAfterthoughts: true }],
+    'no-continue': 'off',
+    'object-curly-newline': ['error', { consistent: true }],
   }
 }

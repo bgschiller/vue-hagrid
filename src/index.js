@@ -29,7 +29,7 @@ export class Hagrid {
     Object.keys(this.subscribers).forEach((actionName) => {
       const newSubs = this.subscribers[actionName].filter(u => u !== uid);
       if (!newSubs.length) {
-        delete this.subscribers[actionName]
+        delete this.subscribers[actionName];
         this.removeWatcher(actionName);
       } else {
         this.subscribers[actionName] = newSubs;
@@ -47,12 +47,15 @@ export class Hagrid {
       (val) => {
         this.getterValues[getterName] = val;
         this.store.dispatch(actionName, val);
-      });
+      },
+    );
     this.watchers[actionName] = removeWatcher;
 
     const getterVal = this.store.getters[getterName];
-    if (!(getterName in this.getterValues) || !shallowEquals(getterVal, this.getterValues[getterName])) {
-      console.log('getterName', getterName, 'cachedValue', this.getterValues[getterName], 'getterValue', getterVal);
+    if (
+      !(getterName in this.getterValues) ||
+      !shallowEquals(getterVal, this.getterValues[getterName])
+    ) {
       this.store.dispatch(actionName, getterVal);
     }
   }

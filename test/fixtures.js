@@ -1,4 +1,4 @@
-import { getMovies } from './api';
+import * as Api from './api';
 
 export const counterModule = {
   state: { amount: 0 },
@@ -16,32 +16,30 @@ export const counterModule = {
   },
 };
 
-export const createMoviesModule = (getMovies = getMovies) => {
-  return {
-    state: { movies: [], status: 'unfetched', genre: null },
-    mutations: {
-      FETCH(state) { state.status = 'fetching'; },
-      SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
-      SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
+export const createMoviesModule = (getMovies = Api.getMovies) => ({
+  state: { movies: [], status: 'unfetched', genre: null },
+  mutations: {
+    FETCH(state) { state.status = 'fetching'; },
+    SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
+    SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
+  },
+  actions: {
+    fetch({ commit }, { genre }) {
+      commit('FETCH');
+      getMovies({ genre })
+        .then(movies => commit('SET_MOVIES', movies));
     },
-    actions: {
-      fetch({ commit }, { genre }) {
-        commit('FETCH');
-        getMovies({ genre })
-          .then(movies => commit('SET_MOVIES', movies));
-      },
-      setGenre({ commit }, genre) {
-        commit('SET_GENRE', genre);
-      },
+    setGenre({ commit }, genre) {
+      commit('SET_GENRE', genre);
     },
-    getters: {
-      moviesDependencies(state) { return { genre: state.genre }; },
-    },
-    hagridResources: {
-      fetch: 'moviesDependencies',
-    },
-  };
-};
+  },
+  getters: {
+    moviesDependencies(state) { return { genre: state.genre }; },
+  },
+  hagridResources: {
+    fetch: 'moviesDependencies',
+  },
+});
 
 export const moviesModule = createMoviesModule();
 
@@ -51,7 +49,7 @@ export const slashyModule = {
     'this/name/has/slashes': () => {},
   },
   getters: {
-    'slashy/name/getter': () => { return 2; },
+    'slashy/name/getter': () => 2,
   },
   hagridResources: {
     'this/name/has/slashes': 'slashy/name/getter',

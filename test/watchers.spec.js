@@ -1,12 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-Vue.use(Vuex);
-
 import { createMoviesModule } from './fixtures';
 import { getMovies } from './api';
 import { Hagrid } from '../src/index';
 import { sleep } from '../src/utils';
+
+Vue.use(Vuex);
 
 const setup = () => {
   const spy = sinon.spy(getMovies);
@@ -18,8 +18,7 @@ const setup = () => {
   return { hagrid, spy, store };
 };
 
-describe ('Hagrid watchers', () => {
-
+describe('Hagrid watchers', () => {
   it('dispatches the action when a watcher is first added', () => {
     const { hagrid, spy } = setup();
     assert(spy.notCalled, 'expected that getMovies has not yet been called');
@@ -63,19 +62,21 @@ describe ('Hagrid watchers', () => {
 
     assert(
       spy.neverCalledWith({ genre: 'comedy' }),
-      'expected hagrid to not dispatch action with no watcher');
+      'expected hagrid to not dispatch action with no watcher',
+    );
   });
 });
 
 describe('Hagrid subscribers', () => {
   it('wont dispatch action if no subscribers exist', async () => {
-    const { hagrid, store, spy } = setup();
+    const { store, spy } = setup();
 
     await store.dispatch('setGenre', 'comedy');
     await sleep(5);
     assert(
       spy.neverCalledWith({ genre: 'comedy' }),
-      'expected hagrid to not dispatch action with no subscribers');
+      'expected hagrid to not dispatch action with no subscribers',
+    );
   });
 
   it('will dispatch if subscribers exist', async () => {
@@ -87,7 +88,8 @@ describe('Hagrid subscribers', () => {
     await sleep(5);
     assert(
       spy.calledWith({ genre: 'comedy' }),
-      'expected hagrid to dispatch action with a subscriber');
+      'expected hagrid to dispatch action with a subscriber',
+    );
   });
 
   it('removes watcher upon unsubscribe', async () => {
@@ -98,7 +100,8 @@ describe('Hagrid subscribers', () => {
     await sleep(5);
     assert(
       spy.calledWith({ genre: 'comedy' }),
-      'expected hagrid to dispatch action with a subscriber');
+      'expected hagrid to dispatch action with a subscriber',
+    );
 
     await sleep(5);
     hagrid.unsubscribe(1);
@@ -107,7 +110,8 @@ describe('Hagrid subscribers', () => {
 
     assert(
       spy.neverCalledWith({ genre: 'action' }),
-      'expected hagrid to stop dispatching action after no more subscribers');
+      'expected hagrid to stop dispatching action after no more subscribers',
+    );
   });
 
   it('avoids redundant dispatch on unsubscribe/resubscribe', async () => {
@@ -139,7 +143,6 @@ describe('Hagrid subscribers', () => {
     await sleep(5);
     assert(spy.calledWith({ genre: 'comedy' }));
 
-    const numCalls = spy.getCalls().length;
     hagrid.unsubscribe(1);
 
     await store.dispatch('setGenre', 'animation');
@@ -147,7 +150,8 @@ describe('Hagrid subscribers', () => {
 
     hagrid.subscribe(2, 'fetch');
     await sleep(5);
-    assert(spy.calledWith({ genre: 'animation' }),
+    assert(
+      spy.calledWith({ genre: 'animation' }),
       'there was a change to getter between unsubscribe/subscribe, so we needed to make a call',
     );
   });
