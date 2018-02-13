@@ -2,10 +2,17 @@
   "name": "vue-hagrid",
   "version": "0.0.0",
   "description": "Declaratively dispatch actions from Vue components",
-  "main": "src/index.js",
+  "main": "dist/vue-hagrid.js",
+  "unpkg": "dist/vue-hagrid.js",
   "scripts": {
-    "test": "karma start test/karma.conf.js --single-run"
+    "lint": "eslint src test",
+    "test": "karma start test/karma.conf.js --single-run",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "prepublish": "npm run lint && npm run test && npm run build"
   },
+  "files": [
+    "dist/vue-hagrid.js"
+  ],
   "author": "Brian Schiller",
   "license": "MIT",
   "private": false,
@@ -18,12 +25,17 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-3": "^6.24.1",
     "chai": "^4.1.2",
+    "cross-env": "^5.1.3",
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-import-resolver-webpack": "^0.8.4",
     "karma": "^2.0.0",
     "karma-babel-preprocessor": "^7.0.0",
     "karma-chai": "^0.1.0",
@@ -42,5 +54,8 @@
   "peerDependencies": {
     "vue": ">=2.x",
     "vuex": ">=2.x"
+  },
+  "dependencies": {
+    "eslint-plugin-import": "^2.8.0"
   }
 }
