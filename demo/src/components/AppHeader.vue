@@ -4,6 +4,9 @@
     <p>
       Declaratively specify the data that would cause actions to need refreshing, and the components that rely on the results of actions.
     </p>
+    <p>
+      Learn more at <a href="https://github.com/bgschiller/vue-hagrid">github.com/bgschiller/vue-hagrid</a>
+    </p>
   </header>
 </template>
 
@@ -13,7 +16,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 header {
   background-color: #1d791d;
   color: gainsboro;
@@ -26,5 +29,8 @@ h1 {
 p {
   margin-left: 10px;
   margin-right: 10px;
+}
+a {
+  color: white;
 }
 </style>

@@ -1,5 +1,7 @@
 ## vuex-hagrid
 
+[![Build Status](https://travis-ci.org/bgschiller/vue-hagrid.svg?branch=master)](https://travis-ci.org/bgschiller/vue-hagrid)
+
 Hagrid is responsible for:
     - keeping track of vuex actions, and the conditions when they might need to be dispatched again.
     - keeping track of components that care about those actions. An action will only be dispatched if there's a component mounted that relies on that action.
