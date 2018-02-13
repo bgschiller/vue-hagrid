@@ -120,12 +120,35 @@ describe('Hagrid subscribers', () => {
 
     const numCalls = spy.getCalls().length;
     hagrid.unsubscribe(1);
+    await sleep(5);
+
     hagrid.subscribe(2, 'fetch');
 
     await sleep(5);
     assert.equal(
       spy.getCalls().length, numCalls,
       'no change to getter between unsubscribe/subscribe, so unnecessary call',
+    );
+  });
+
+  it('makes calls as necessary on resubscribe', async () => {
+    const { hagrid, store, spy } = setup();
+
+    hagrid.subscribe(1, ['fetch']);
+    await store.dispatch('setGenre', 'comedy');
+    await sleep(5);
+    assert(spy.calledWith({ genre: 'comedy' }));
+
+    const numCalls = spy.getCalls().length;
+    hagrid.unsubscribe(1);
+
+    await store.dispatch('setGenre', 'animation');
+    await sleep(5);
+
+    hagrid.subscribe(2, 'fetch');
+    await sleep(5);
+    assert(spy.calledWith({ genre: 'animation' }),
+      'there was a change to getter between unsubscribe/subscribe, so we needed to make a call',
     );
   });
 });

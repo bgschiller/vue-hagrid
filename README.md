@@ -1,90 +1,43 @@
-Hoping for some advice about where to put data fetching. I'm using Vue, but I suspect the story is the same for React. When the page loads, I (sometimes) need to make some api calls.
-
- - Check if the user is logged in
- - Fetch the list of orgs they belong to
- - etc.
-
-The simplest place would be to dispatch actions for those requests would be the `mounted()` hook of each route's root component. This has some issues:
-
- - Code Repetition: There's a lot of overlap of what data is required for each route.
- - Repeat Requests: If I navigate to another route (without a full page load), I would end up making those requests again.
-
-I could also kick off the requests from the `<App />` root component (above the `<router-view />`), but I don't want them on all places. For example, I have some routes that don't require login, and if I try to validate the login, or fetch a list of org, I end up causing a redirect to `/login` because the user isn't authenticated.
-
-I'd like some declarative way of specifying which data each component relies on, and then the only requests that would be made are those that _have not yet been fetched_.
-
-Here's an article I'm reflecting on when thinking about caching or memoizing the requests:
-https://medium.com/@bluepnume/async-javascript-is-much-more-fun-when-you-spend-less-time-thinking-about-control-flow-8580ce9f73fc
-
-I feel like I could put this information with my routes or root components, and set up something to make this happen. But it seems like this must be a problem other folks have faced and solved already. Does anyone have advice on this?
-
 ## vuex-hagrid
+
+Hagrid is responsible for:
+    - keeping track of vuex actions, and the conditions when they might need to be dispatched again.
+    - keeping track of components that care about those actions. An action will only be dispatched if there's a component mounted that relies on that action.
+    - Dispatching actions when the associated getter changes, as long as there's a view who cares about that endpoint.
 
 “You think it - wise - to trust Hagrid with something as important as this?"
 "I would trust Hagrid with my life."
 
+## Quick Start
+
+Install with `npm install --save vue-hagrid`.
+
+Choose which actions need to be managed with Hagrid. These usually are actions that don't "belong" to any particular component, but rather to multiple components. Add a `hagridResources` key to your store, which should be a map from action name to getter name. The getter contains any data that the action wishes to respond to.
 
 ```javascript
-export default class Hagrid {
-  constructor() {
-    this.subscribers = {}; // { actionName: [vm._uid] }
+  ...
+  hagridResources: {
+    // projectsPayload is a getter containing the data `fetchProjects` needs
+    // in order to perform a fetch. It can be empty.
+    fetchProjects: 'projectsPayload',
   },
-  subscribe(uid, actionNames) {
-    actionNames.forEach((actionName) => {
-      if (this.subscribers[actionName]) {
-        if (this.subscribers[actionName].indexOf(uid) > -1) {
-          throw new Error(`Uh oh, the component with id ${uid} is already subscribed to action "${actionName}"...`);
-        }
-        this.subscribers[actionName].push(uid);
-      } else {
-        this.subscribers[actionName] = [uid];
-        this.addWatcher(actionName);
-      }
-    });
-  },
-  unsubscribe(uid) {
-    Object.keys(this.subscribers).forEach((actionName) => {
-      const newSubs = this.subscribers[actionName].filter(u => u !== uid);
-      if (!newSubs.length) {
-        delete this.subscribers[actionName]
-        this.removeWatcher(actionName);
-      } else {
-        this.subscribers[actionName] = newSubs;
-      }
-    });
-  },
-  addWatcher(actionName) {
-    if (this.watchers[actionName]) {
-      throw new Error(`Uh oh, the action "${actionName}" is already being watched. Something has gone wrong...`);
-    }
+  ...
+```
 
-    const getterName = findGetter(store, actionName);
-    const removeWatcher = this.store.watch(
-      (_state, getters) => getters[getterName],
-      (val) => this.store.dispatch(actionName, val));
-    this.watchers[actionName] = removeWatcher;
-  },
-  removeWatcher(actionName) {
-    this.watchers[actionName]();
-    delete this.watchers[actionName];
-  },
-  install(Vue, options) {
-    Vue.mixin({
-      mounted() {
-        if (!this.reliesOn) { // should this be this.$options.reliesOn?
-          return;
-        }
-        hagrid.subscribe(this._uid, this.reliesOn);
-      },
-      beforeDestroy() {
-        if (!this.reliesOn) { // should this be this.$options.reliesOn?
-          return;
-        }
-        hagrid.unsubscribe(this._uid, this.reliesOn);
-      },
-    });
-  },
-}
+In each component that relies on those actions, add a `hagridActions` key so that Hagrid will know when subscribers are mounted on the page.
+
+```javascript
+   ...
+   hagridActions: 'fetchProjects', // or ['fetchProjects', 'anotherAction', ...]
+   ...
+```
+
+Import and 'use' the Hagrid plugin:
+
+```javascript
+const Hagrid = require('vue-hagrid');
+
+Vue.use(Hagrid);
 ```
 
 ## The Problem
@@ -146,3 +99,7 @@ export default {
 ```
 
 In each component, vue-hagrid will check for a key, `hagridActions`. If it is provided, it should be a list of actions that the component cares about. vue-hagrid will not trigger any events or communicate to the component directly -- information will flow from the store like usual.
+
+## For Example
+
+Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).

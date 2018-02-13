@@ -3,7 +3,7 @@ import { getCategories } from './api';
 const state = {
   numResults: 20,
   categories: null,
-  selectedCategoryId: null,
+  selectedCategoryId: 1,
   size: 'full',
   possibleSizes: ['full', 'med', 'small'],
   show: {
@@ -75,9 +75,17 @@ const actions = {
   },
 };
 
+const getters = {
+  selectedCategory(state) {
+    if (!state.categories) return null;
+    return state.categories.find(c => c.id === state.selectedCategoryId);
+  },
+};
+
 export default {
   namespaced: true,
   state,
   mutations,
   actions,
+  getters,
 };

@@ -22,30 +22,33 @@
         </select>
       </label>
     </div>
+    <p>
+      Try unchecking all three views.
+    </p>
     <div class="view-options">
       <label>
-        Show Carousel
         <input
           type="checkbox"
           :checked="showViews.carousel"
           @change="toggleView('carousel')"
         />
+        Show Carousel
       </label>
       <label>
-        Show Links
-        <input
-          type="checkbox"
-          :checked="showViews.links"
-          @change="toggleView('links')"
-        />
-      </label>
-      <label>
-        Show Download
         <input
           type="checkbox"
           :checked="showViews.download"
           @change="toggleView('download')"
         />
+        Show Download
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          :checked="showViews.links"
+          @change="toggleView('links')"
+        />
+        Show Links
       </label>
     </div>
   </div>

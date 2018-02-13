@@ -20,10 +20,11 @@ const mutations = {
 const parser = new DOMParser();
 
 const actions = {
-  async fetch({ commit }, { numResults, category, size }) {
+  async fetch({ commit }, payload) {
     commit('FETCHING');
     const version = state.version;
-    const text = await getCats({ numResults, category, size });
+    const text = await getCats(payload);
+    if (!text) return;
     const xml = parser.parseFromString(text, 'text/xml');
     const imgs = Array.from(xml.querySelectorAll('image'))
       .map(img => ({
@@ -37,10 +38,12 @@ const actions = {
 };
 
 const getters = {
-  catOptions(state, getters, rootState) {
+  catOptions(state, getters, rootState, rootGetters) {
+    const category = rootGetters['Config/selectedCategory'];
+    if (!category) return null;
     return {
       numResults: rootState.Config.numResults,
-      category: rootState.Config.selectedCategoryId,
+      category: category.name,
       size: rootState.Config.size,
     };
   },

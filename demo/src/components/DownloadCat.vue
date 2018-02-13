@@ -1,8 +1,8 @@
 <template>
   <div class="download-cat">
     <a
-      v-if="catStatus === 'complete'"
-      :href="img.url"
+      v-if="catStatus === 'complete' && img"
+      :href="img && img.url"
       @click="newImg"
       download
     >
@@ -26,7 +26,7 @@ export default {
   hagridActions: ['Cats/fetch'],
   data() {
     return {
-      imgIx: null,
+      imgIx: 0,
     };
   },
   computed: {
@@ -44,7 +44,7 @@ export default {
     },
   },
   watch: {
-    imgs() { if (this.imgs) newImg(); },
+    imgs() { if (this.imgs) this.newImg(); },
   },
 };
 

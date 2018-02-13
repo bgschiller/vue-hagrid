@@ -1,5 +1,10 @@
 import findGetter from './findGetter';
 
+function shallowEquals(obj1, obj2) {
+  const keys = Object.keys(obj1);
+  if (Object.keys(obj2).length !== keys.length) return false;
+  return keys.every(k => obj1[k] === obj2[k]);
+}
 export class Hagrid {
   constructor() {
     this.subscribers = {}; // { actionName: [vm._uid] }
@@ -46,7 +51,8 @@ export class Hagrid {
     this.watchers[actionName] = removeWatcher;
 
     const getterVal = this.store.getters[getterName];
-    if (!(getterName in this.getterValues) && getterVal !== this.getterValues[getterName]) {
+    if (!(getterName in this.getterValues) || !shallowEquals(getterVal, this.getterValues[getterName])) {
+      console.log('getterName', getterName, 'cachedValue', this.getterValues[getterName], 'getterValue', getterVal);
       this.store.dispatch(actionName, getterVal);
     }
   }

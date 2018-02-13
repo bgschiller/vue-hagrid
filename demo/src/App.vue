@@ -1,12 +1,18 @@
 <template>
   <div id="app">
-    <Config />
-    <ListOfLinks v-if="show.links" />
-    <CatCarousel v-if="show.carousel" />
-    <DownloadCat v-if="show.download" />
-    <div v-if="noneOfTheAbove">
-      If you check your network panel, you'll see that no requests are sent out, even if you change the config.
-    </div>
+    <AppHeader />
+    <main>
+      <Config />
+      <p v-if="anyViewsShowing">
+        No matter which of the views are mounted, only one request will be sent for any change in the config.
+      </p>
+      <CatCarousel v-if="show.carousel" />
+      <DownloadCat v-if="show.download" />
+      <ListOfLinks v-if="show.links" />
+      <p v-if="!anyViewsShowing">
+        If you check your network panel, you'll see that no requests are sent out, even if you change the config.
+      </p>
+    </main>
   </div>
 </template>
 
@@ -17,6 +23,7 @@ import ListOfLinks from './components/ListOfLinks.vue';
 import CatCarousel from './components/CatCarousel.vue';
 import DownloadCat from './components/DownloadCat.vue';
 import Config from './components/Config.vue';
+import AppHeader from './components/AppHeader.vue';
 
 export default {
   name: 'app',
@@ -25,28 +32,37 @@ export default {
     DownloadCat,
     CatCarousel,
     Config,
+    AppHeader,
   },
   computed: {
     ...mapState({
       show: state => state.Config.show,
     }),
-    noneOfTheAbove() {
+    anyViewsShowing() {
       return Object.keys(this.show)
         .filter(v => this.show[v])
-        .length === 0;
+        .length > 0;
     },
   },
 }
 </script>
 
 <style>
+body {
+  margin-top: 0;
+  margin-right: 0;
+  margin-left: 0;
+  width: 100%;
+}
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+main {
+  margin-top: 20px;
 }
 
 h1, h2 {

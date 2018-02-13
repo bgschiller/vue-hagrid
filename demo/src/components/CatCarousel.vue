@@ -1,6 +1,6 @@
 <template>
   <div class="cat-carousel">
-    <Carousel v-if="catStatus === 'complete'">
+    <Carousel v-if="catStatus === 'complete'" :navigationEnabled="true">
       <Slide v-for="img in imgs" :key="img.id">
         <img :src="img.url" />
       </Slide>>
@@ -31,3 +31,9 @@ export default {
 };
 
 </script>
+
+<style>
+.cat-carousel img {
+  max-height: 400px;
+}
+</style>
