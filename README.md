@@ -8,8 +8,9 @@ Hagrid is responsible for:
   - keeping track of components that care about those actions. An action will only be dispatched if there's a component mounted that relies on that action.
   - Dispatching actions when the associated getter changes, as long as there's a view who cares about that endpoint.
 
-“You think it - wise - to trust Hagrid with something as important as this?"
-"I would trust Hagrid with my life."
+> “You think it &mdash; wise &mdash; to trust Hagrid with something as important as this?"
+>
+> "I would trust Hagrid with my life."
 
 ## Quick Start
 
