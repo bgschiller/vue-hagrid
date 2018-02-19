@@ -1,6 +1,6 @@
 {
   "name": "vue-hagrid",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Declaratively dispatch actions from Vue components",
   "main": "dist/vue-hagrid.js",
   "unpkg": "dist/vue-hagrid.js",
