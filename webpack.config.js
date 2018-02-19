@@ -5,7 +5,9 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'vue-hagrid.js'
+    filename: 'vue-hagrid.js',
+    library: 'vue-hagrid',
+    libraryTarget: 'umd',
   },
   module: {
     rules: [
