@@ -10,6 +10,7 @@ export class Hagrid {
     this.subscribers = {}; // { actionName: [vm._uid] }
     this.watchers = {}; // { actionName: unsubscribe() }
     this.getterValues = {};
+    this.promises = {};
   }
   subscribe(uid, _actionNames) {
     const actionNames = typeof _actionNames === typeof '' ? [_actionNames] : _actionNames;
@@ -46,7 +47,7 @@ export class Hagrid {
       (_state, getters) => getters[getterName],
       (val) => {
         this.getterValues[getterName] = val;
-        this.store.dispatch(actionName, val);
+        this.promises[actionName] = this.store.dispatch(actionName, val);
       },
     );
     this.watchers[actionName] = removeWatcher;
@@ -85,6 +86,10 @@ export class Hagrid {
         }
         _this.unsubscribe(this._uid, this.$options.hagridActions);
       },
+    });
+
+    Object.defineProperty(Vue.prototype, 'hagridPromises', {
+      get() { return _this.promises; },
     });
   }
 }

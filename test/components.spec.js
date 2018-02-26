@@ -41,4 +41,16 @@ describe('component hooks', () => {
 
     assert(hagrid.subscribe.called, 'expected component mounted to subscribe to hagrid');
   });
+
+  it('finds promises on .hagridPromises', async () => {
+    const vm = new Vue({
+      ...TestComponent,
+      store,
+    }).$mount();
+
+    await Vue.nextTick();
+    assert.isDefined(vm.hagridPromises, 'Expected hagrid promises to be available');
+    assert.isDefined(vm.hagridPromises.incr, 'Expected incr to be among hagrid promises');
+    assert.isDefined(vm.hagridPromises.incr.then, 'Expected hagridPromises.incr to be then-able');
+  });
 });

@@ -104,6 +104,20 @@ export default {
 
 In each component, vue-hagrid will check for a key, `hagridActions`. If it is provided, it should be a list of actions that the component cares about. vue-hagrid will not trigger any events or communicate to the component directly -- information will flow from the store like usual.
 
+### Waiting on actions
+
+Sometimes, you may wish to know in the component when an action has completed. You can access the results (promises) of any action hagrid has dispatched via `component.hagridPromises[actionName]`.
+
+```javascript
+hagridActions: ['fetchProjects'],
+async mounted() {
+  await this.hagridPromises.fetchProjects;
+  // at this point, you can be confident that projects have been fetched.
+  const toSelect = this.$route.query.projectId || this.projects[0].id;
+  this.selectProject(this.projects.find(p => p.id === toSelect));
+},
+```
+
 ## For Example
 
 Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).
