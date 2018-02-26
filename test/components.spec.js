@@ -42,15 +42,38 @@ describe('component hooks', () => {
     assert(hagrid.subscribe.called, 'expected component mounted to subscribe to hagrid');
   });
 
-  it('finds promises on .hagridPromises', async () => {
+  it('finds promises on .hagridPromise', async () => {
     const vm = new Vue({
       ...TestComponent,
       store,
     }).$mount();
 
     await Vue.nextTick();
-    assert.isDefined(vm.hagridPromises, 'Expected hagrid promises to be available');
-    assert.isDefined(vm.hagridPromises.incr, 'Expected incr to be among hagrid promises');
-    assert.isDefined(vm.hagridPromises.incr.then, 'Expected hagridPromises.incr to be then-able');
+    assert.isDefined(vm.hagridPromise, 'Expected hagrid promises to be available');
+    assert.isDefined(vm.hagridPromise('incr'), 'Expected incr to be among hagrid promises');
+    assert.isDefined(vm.hagridPromise('incr').then, "Expected hagridPromise('incr') to be then-able");
+
+    assert.isDefined(vm.hagridPromise('non-existent'), "expected a promise, even for actions hagrid doesn't know about");
+    assert.isDefined(vm.hagridPromise('non-existent').then, "expected hagridPromise('non-existent') to be then-able");
+  });
+
+  it('follows the unknown promise', async () => {
+    const cb = sinon.spy();
+    const vm = new Vue({
+      template: '<div></div>',
+      store,
+    }).$mount();
+    vm.hagridPromise('incr').then(cb);
+
+    assert(cb.notCalled, 'Expect that an unknown promise is not immediately resolved');
+
+    // for the side-effect of dispatching 'incr'
+    new Vue({
+      ...TestComponent,
+      store,
+    }).$mount();
+    await Vue.nextTick();
+
+    assert(cb.called);
   });
 });

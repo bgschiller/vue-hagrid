@@ -11,6 +11,7 @@ export class Hagrid {
     this.watchers = {}; // { actionName: unsubscribe() }
     this.getterValues = {};
     this.promises = {};
+    this.unknownPromises = {};
   }
   subscribe(uid, _actionNames) {
     const actionNames = typeof _actionNames === typeof '' ? [_actionNames] : _actionNames;
@@ -47,7 +48,7 @@ export class Hagrid {
       (_state, getters) => getters[getterName],
       (val) => {
         this.getterValues[getterName] = val;
-        this.promises[actionName] = this.store.dispatch(actionName, val);
+        this.setPromise(actionName, this.store.dispatch(actionName, val));
       },
     );
     this.watchers[actionName] = removeWatcher;
@@ -66,6 +67,28 @@ export class Hagrid {
     }
     this.watchers[actionName]();
     delete this.watchers[actionName];
+    delete this.promises[actionName];
+    delete this.unknownPromises[actionName];
+  }
+  getPromise(actionName) {
+    if (this.promises[actionName]) {
+      return this.promises[actionName];
+    }
+    if (this.unknownPromises[actionName]) {
+      return this.unknownPromises[actionName];
+    }
+    let res;
+    this.unknownPromises[actionName] = new Promise((resolve) => { res = resolve; });
+    this.unknownPromises[actionName]._res = res;
+    return this.unknownPromises[actionName];
+  }
+  setPromise(actionName, p) {
+    if (this.unknownPromises[actionName]) {
+      // the promise we've already handed out will follow this new (real) one.
+      this.unknownPromises[actionName]._res(p);
+      delete this.unknownPromises[actionName];
+    }
+    this.promises[actionName] = p;
   }
   install(Vue, options) {
     this.store = options && options.store;
@@ -88,8 +111,8 @@ export class Hagrid {
       },
     });
 
-    Object.defineProperty(Vue.prototype, 'hagridPromises', {
-      get() { return _this.promises; },
+    Object.defineProperty(Vue.prototype, 'hagridPromise', {
+      get() { return _this.getPromise.bind(_this); },
     });
   }
 }

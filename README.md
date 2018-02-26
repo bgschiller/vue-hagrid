@@ -106,12 +106,12 @@ In each component, vue-hagrid will check for a key, `hagridActions`. If it is pr
 
 ### Waiting on actions
 
-Sometimes, you may wish to know in the component when an action has completed. You can access the results (promises) of any action hagrid has dispatched via `component.hagridPromises[actionName]`.
+Sometimes, you may wish to know in the component when an action has completed. You can access the results (promises) of any action hagrid has dispatched via `component.hagridPromise(actionName)`.
 
 ```javascript
 hagridActions: ['fetchProjects'],
 async mounted() {
-  await this.hagridPromises.fetchProjects;
+  await this.hagridPromise('fetchProjects');
   // at this point, you can be confident that projects have been fetched.
   const toSelect = this.$route.query.projectId || this.projects[0].id;
   this.selectProject(this.projects.find(p => p.id === toSelect));
