@@ -1,15 +1,17 @@
 import * as Api from './api';
 
 export const counterModule = {
-  state: { amount: 0 },
+  state: { amount: 0, step: 1 },
   mutations: {
     INCR(state) { state.amount += 1; },
+    SET_STEP(state, size) { state.step = size; },
   },
   actions: {
     incr({ commit }) { commit('INCR'); },
+    setStep({ commit }, step) { commit('SET_STEP', step); },
   },
   getters: {
-    latest(state) { return state.amount; },
+    latest(state) { return state.step; },
   },
   hagridResources: {
     incr: 'latest',

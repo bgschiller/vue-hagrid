@@ -58,7 +58,7 @@ export class Hagrid {
       !(getterName in this.getterValues) ||
       !shallowEquals(getterVal, this.getterValues[getterName])
     ) {
-      this.store.dispatch(actionName, getterVal);
+      this.setPromise(actionName, this.store.dispatch(actionName, getterVal));
     }
   }
   removeWatcher(actionName) {
@@ -83,6 +83,7 @@ export class Hagrid {
     return this.unknownPromises[actionName];
   }
   setPromise(actionName, p) {
+    if (actionName === 'incr') debugger;
     if (this.unknownPromises[actionName]) {
       // the promise we've already handed out will follow this new (real) one.
       this.unknownPromises[actionName]._res(p);

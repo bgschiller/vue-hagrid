@@ -41,5 +41,5 @@ const getMoviesforGenre = genre =>
   Promise.resolve(moviesByGenre[genre] || []);
 
 export const getMovies = ({ genre }) =>
-  getMoviesforGenre(genre) // like: fetch(`/movies?genre=${genre}`)
-    .then(resp => resp.json());
+  getMoviesforGenre(genre); // like: fetch(`/movies?genre=${genre}`)
+
