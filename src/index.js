@@ -1,17 +1,19 @@
 import findGetter from './findGetter';
+import forEachModule from './forEachModule';
 
 function shallowEquals(obj1, obj2) {
   const keys = Object.keys(obj1);
   if (Object.keys(obj2).length !== keys.length) return false;
   return keys.every(k => obj1[k] === obj2[k]);
 }
-export class Hagrid {
+export default class Hagrid {
   constructor() {
     this.subscribers = {}; // { actionName: [vm._uid] }
     this.watchers = {}; // { actionName: unsubscribe() }
     this.getterValues = {};
     this.promises = {};
     this.unknownPromises = {};
+    this.eventCallbacks = [];
   }
   subscribe(uid, _actionNames) {
     const actionNames = typeof _actionNames === typeof '' ? [_actionNames] : _actionNames;
@@ -112,15 +114,107 @@ export class Hagrid {
       },
     });
 
-    Object.defineProperty(Vue.prototype, 'hagridPromise', {
-      get() { return _this.getPromise.bind(_this); },
+    Object.defineProperties(Vue.prototype, {
+      // deprecate this in favor of `this.hagrid.getPromise`
+      hagridPromise: {
+        get() { return _this.getPromise.bind(_this); },
+      },
+      hagrid: {
+        get() {
+          return {
+            on: _this.on.bind(_this),
+            emit: _this.on.bind(_this),
+            getPromise: _this.on.bind(_this),
+          };
+        },
+      },
+    });
+
+    this.initEventBus(Vue);
+  }
+
+  initEventBus(Vue) {
+    this._eventBus = new Vue();
+  }
+
+  assertEventBusExists() {
+    if (!this._eventBus) {
+      throw new Error('[vue-hagrid]: Error, please run Vue.use(hagrid) before using hagrid.vuexPlugin, hagrid.on, or hagrid.emit');
+    }
+  }
+  on(evt, cb) {
+    this.assertEventBusExists();
+    this._eventBus.$on(evt, cb);
+    return () => this._eventBus.$off(evt, cb);
+  }
+
+  emit(evt, ...args) {
+    this._eventBus.$emit(evt, ...args);
+  }
+
+  addListenersFromModule(store, modul, prefix) {
+    const events = modul._rawModule.hagridOn;
+    if (!events) return;
+    Object.keys(events).forEach((evtName) => {
+      const localActionName = events[evtName];
+      const actionName = prefix && modul.namespaced ? `${prefix}/${localActionName}` : localActionName;
+      const callback = store.dispatch.bind(store, actionName);
+
+      const unregister = this.on(evtName, callback);
+      this.eventCallbacks.push({ event: evtName, actionName, unregister });
     });
   }
+
+  addListenersFromModules(store) {
+    forEachModule(store, this.addListenersFromModule.bind(this, store));
+  }
+
+  clearModuleEvents() {
+    this.eventCallbacks.forEach(({ unregister }) => unregister());
+    this.eventCallbacks = [];
+  }
+
+  _vuexPlugin(store) {
+    this.store = store;
+    this.addListenersFromModules(store);
+
+    const hagrid = this;
+    const oldRegisterModule = store.registerModule;
+    // eslint-disable-next-line no-param-reassign
+    store.registerModule = function replacementRegisterModule(...args) {
+      oldRegisterModule.apply(this, args);
+
+      // a module has been added, so we may need to add some hagridOn listeners.
+      // in the future, it may be worthwhile to pick out specifically the new module.
+      // For now, we'll just remove all of them, then replace all of them.
+
+      // clear listeners that were registered via hagridOn so we don't have duplicates
+      hagrid.clearModuleEvents();
+      hagrid.addListenersFromModules(store);
+    };
+
+    const oldUnregisterModule = store.unregisterModule;
+    // eslint-disable-next-line no-param-reassign
+    store.unregisterModule = function replacementUnregisterModule(...args) {
+      oldUnregisterModule.apply(this, args);
+
+      // a module has been removed, so we may need to clear some hagridOn listeners.
+      // in the future, it may be worthwhile to pick out specifically which events
+      // were created by that module. For now, we'll just remove all of them, then replace
+      // the ones that still exist.
+
+      // clear listeners that were registered via hagridOn so we don't have duplicates
+      hagrid.clearModuleEvents();
+      hagrid.addListenersFromModules(store);
+    };
+
+    // eslint-disable-next-line no-param-reassign
+    store.hagrid = {
+      emit: this.emit.bind(this),
+    };
+  }
+
+  get vuexPlugin() {
+    return this._vuexPlugin.bind(this);
+  }
 }
-
-const install = (...args) => {
-  const hag = new Hagrid();
-  hag.install(...args);
-};
-
-export default { install };

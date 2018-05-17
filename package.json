@@ -48,6 +48,8 @@
     "mocha": "^5.0.0",
     "sinon": "^4.3.0",
     "vue": "^2.5.13",
+    "vue-template-compiler": "^2.x",
+    "vue-test-utils": "^1.0.0-beta.11",
     "vuex": "^3.0.1",
     "webpack": "^3.10.0"
   },

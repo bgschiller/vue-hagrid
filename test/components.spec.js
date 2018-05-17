@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { Hagrid } from '../src/index';
+import Hagrid from '../src/index';
 import { counterModule } from './fixtures';
 
 const counter = { ...counterModule, namespaced: true };

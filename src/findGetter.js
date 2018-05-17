@@ -1,5 +1,6 @@
 import { assert } from './utils';
 
+// TODO refactor to use walkModules instead
 function _findGetter(modul, actionName, prefix) {
   const resources = modul._rawModule.hagridResources;
   const getterName = resources && resources[actionName];

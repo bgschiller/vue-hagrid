@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 
 import { createMoviesModule, counterModule } from './fixtures';
 import { getMovies } from './api';
-import { Hagrid } from '../src/index';
+import Hagrid from '../src/index';
 import findGetter from '../src/findGetter';
 import { sleep } from '../src/utils';
 

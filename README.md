@@ -118,6 +118,53 @@ async mounted() {
 },
 ```
 
+### Events
+
+Hagrid can also trigger actions in response to events. A motivating example of this would be logging out. When the `LogOut` action occurs, you likely need to clear the data in the rest of your modules.
+
+One way to accomplish this would be to just dispatch a bunch of actions from `LogOut`: `dispatch('Projects/clear'); dispatch('Issues/clear'); ...`. This is undesirable because the Login module must now maintain a list of which actions to call when a logout occurs. Better would be if each module could opt-in to having an action run when `LogOut` occurs.
+
+Events would be a classic way to handle this. Where modules are defined, the store doesn't yet exist. Trying to import it would create a circular dependency, so it's awkward to trigger a `store.dispatch('MyAction')` in response to an event.
+
+Hagrid provides an event bus and a way to specify actions that should be triggered when events occur. The main benefit here is in co-locating the event listener with the action definition, which would be awkward otherwise because of the circular import issue.
+
+#### Listening for an event
+
+```javascript
+export default {
+  namespaced: true,
+  actions,
+  mutations,
+  getters,
+  hagridOn: {
+    logout: 'clear', // The local 'clear' action will be called when logout is emitted.
+  },
+}
+```
+
+#### Emit an event from an action
+
+```javascript
+const Login = {
+  // ...
+  actions: {
+    logOut({ commit }) {
+      eraseCookie();
+      commit('LOGOUT');
+
+      this.hagrid.emit('logout'); // trigger listeners
+    },
+  },
+}
+
+```
+
+#### Emit an event from anywhere you have the store
+
+```javascript
+store.hagridEmit('resize');
+```
+
 ## For Example
 
 Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).
