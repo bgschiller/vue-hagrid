@@ -165,6 +165,36 @@ const Login = {
 store.hagridEmit('resize');
 ```
 
+#### Gotchas
+
+"`this.hagrid` is undefined" "Cannot read property 'emit' of undefined". This can occur when your actions are arrow functions. Change them to regular functions so that their `this` can be bound to the store. Alternatively, you can import your hagrid instance and use it directly.
+
+```
+logout: ({ commit }) => {
+  this.hagrid.emit('logout'); // 💥 crash!
+  // ...
+}
+```
+
+Change to regular function:
+```
+logout({ commit }) {
+  this.hagrid.emit('logout'); // 👌 nice.
+  // ...
+}
+```
+
+Alternatively, import hagrid from wherever you've instantiated it:
+
+```
+import hagrid from '@/hagrid';
+
+logout: ({ commit }) => {
+  hagrid.emit('logout'); // 👌 also good.
+  // ...
+}
+```
+
 ## For Example
 
 Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).
