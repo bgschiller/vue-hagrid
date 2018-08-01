@@ -46,7 +46,7 @@ describe('component hooks', () => {
     assert(hagrid.subscribe.called, 'expected component mounted to subscribe to hagrid');
   });
 
-  it.skip('finds promises on .hagridPromise', async () => {
+  it('finds promises on .hagridPromise', async () => {
     const store = new Vuex.Store({
       modules: { Counter2: counter },
     });

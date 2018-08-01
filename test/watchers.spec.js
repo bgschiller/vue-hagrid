@@ -156,3 +156,16 @@ describe('Hagrid subscribers', () => {
     );
   });
 });
+
+it("doesn't dispatch actions when their payload is null", async () => {
+  const { hagrid, store, spy } = setup();
+
+  hagrid.addWatcher('fetchLoggedIn');
+  await sleep(5);
+
+  assert(spy.notCalled, 'the spy should not yet have been called, because the payload was null');
+
+  await store.dispatch('logIn');
+  await sleep(5);
+  assert(spy.calledOnce, 'the spy should have been called, because the payload changed to truthy');
+});

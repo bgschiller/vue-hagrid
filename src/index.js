@@ -50,15 +50,18 @@ export default class Hagrid {
       (_state, getters) => getters[getterName],
       (val) => {
         this.getterValues[getterName] = val;
-        this.setPromise(actionName, this.store.dispatch(actionName, val));
+        if (val) {
+          this.setPromise(actionName, this.store.dispatch(actionName, val));
+        }
       },
     );
     this.watchers[actionName] = removeWatcher;
 
     const getterVal = this.store.getters[getterName];
     if (
-      !(getterName in this.getterValues) ||
-      !shallowEquals(getterVal, this.getterValues[getterName])
+      (!(getterName in this.getterValues) ||
+       !shallowEquals(getterVal, this.getterValues[getterName])) &&
+      getterVal
     ) {
       this.setPromise(actionName, this.store.dispatch(actionName, getterVal));
     }
@@ -85,7 +88,6 @@ export default class Hagrid {
     return this.unknownPromises[actionName];
   }
   setPromise(actionName, p) {
-    if (actionName === 'incr') debugger;
     if (this.unknownPromises[actionName]) {
       // the promise we've already handed out will follow this new (real) one.
       this.unknownPromises[actionName]._res(p);

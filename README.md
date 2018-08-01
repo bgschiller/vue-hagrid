@@ -195,6 +195,7 @@ logout: ({ commit }) => {
 }
 ```
 
+Hagrid will only dispatch actions when the getter payload is truthy. That way, `hagridPromise('fetchProjects')` will not resolve with an early (eg, pre-logged-in) run of the action. This can cause problems if `false` or `null` is a value you return from your getter when you want to still run the action. Workaround: just wrap it in an object.
 ## For Example
 
 Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).

@@ -19,17 +19,24 @@ export const counterModule = {
 };
 
 export const createMoviesModule = (getMovies = Api.getMovies) => ({
-  state: { movies: [], status: 'unfetched', genre: null },
+  state: { movies: [], status: 'unfetched', genre: null, loggedIn: false },
   mutations: {
     FETCH(state) { state.status = 'fetching'; },
     SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
     SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
+    LOG_IN(state) { state.loggedIn = true; },
   },
   actions: {
+    logIn({ commit }) {
+      commit('LOG_IN');
+    },
     fetch({ commit }, { genre }) {
       commit('FETCH');
       getMovies({ genre })
         .then(movies => commit('SET_MOVIES', movies));
+    },
+    fetchLoggedIn({ dispatch }, payload) {
+      return dispatch('fetch', payload);
     },
     setGenre({ commit }, genre) {
       commit('SET_GENRE', genre);
@@ -37,9 +44,16 @@ export const createMoviesModule = (getMovies = Api.getMovies) => ({
   },
   getters: {
     moviesDependencies(state) { return { genre: state.genre }; },
+    loggedInDependencies(state, getters) {
+      if (!state.loggedIn) {
+        return false;
+      }
+      return getters.moviesDependencies;
+    },
   },
   hagridResources: {
     fetch: 'moviesDependencies',
+    fetchLoggedIn: 'loggedInDependencies',
   },
 });
 
