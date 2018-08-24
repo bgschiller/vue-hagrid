@@ -1,6 +1,6 @@
+import shallowEquals from 'shallow-equals';
 import findGetter from './findGetter';
 import forEachModule from './forEachModule';
-import shallowEquals from 'shallow-equals';
 
 export default class Hagrid {
   constructor() {
