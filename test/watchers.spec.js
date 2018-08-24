@@ -169,3 +169,51 @@ it("doesn't dispatch actions when their payload is null", async () => {
   await sleep(5);
   assert(spy.calledOnce, 'the spy should have been called, because the payload changed to truthy');
 });
+
+
+it("doesn't dispatch actions when their payload is null", async () => {
+  const { hagrid, store, spy } = setup();
+
+  hagrid.addWatcher('fetchLoggedIn');
+  await sleep(5);
+
+  assert(spy.notCalled, 'the spy should not yet have been called, because the payload was null');
+
+  await store.dispatch('logIn');
+  await sleep(5);
+  assert(spy.calledOnce, 'the spy should have been called, because the payload changed to truthy');
+});
+
+it('can compare null to obj without crashing', async () => {
+  const { hagrid, store, spy } = setup();
+
+  hagrid.subscribe(1, ['fetchLoggedIn']);
+  await store.dispatch('setGenre', 'romcom');
+  await store.dispatch('logIn');
+  await sleep(5);
+  assert(spy.calledWith({ genre: 'romcom' }));
+
+  const numCalls = spy.getCalls().length;
+  await store.dispatch('logOut');
+  assert.equal(store.getters.loggedInDependencies, null);
+  await sleep(5);
+  assert.equal(
+    spy.getCalls().length, numCalls,
+    "getter value is false so shouldn't make call",
+  );
+
+  hagrid.unsubscribe(1);
+  await store.dispatch('logIn');
+  await sleep(5);
+  assert.equal(
+    spy.getCalls().length, numCalls,
+    "no subscribers, so shouldn't make call",
+  );
+
+  hagrid.subscribe(2, 'fetchLoggedIn');
+  await sleep(5);
+  assert.equal(
+    spy.getCalls().length, numCalls + 1,
+    'false -> payload should produce a call',
+  );
+});

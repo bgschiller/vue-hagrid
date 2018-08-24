@@ -25,10 +25,14 @@ export const createMoviesModule = (getMovies = Api.getMovies) => ({
     SET_MOVIES(state, payload) { state.movies = payload; state.status = 'fetched'; },
     SET_GENRE(state, payload) { state.genre = payload; state.status = 'unfetched'; },
     LOG_IN(state) { state.loggedIn = true; },
+    LOG_OUT(state) { state.loggedIn = false; },
   },
   actions: {
     logIn({ commit }) {
       commit('LOG_IN');
+    },
+    logOut({ commit }) {
+      commit('LOG_OUT');
     },
     fetch({ commit }, { genre }) {
       commit('FETCH');
@@ -46,7 +50,7 @@ export const createMoviesModule = (getMovies = Api.getMovies) => ({
     moviesDependencies(state) { return { genre: state.genre }; },
     loggedInDependencies(state, getters) {
       if (!state.loggedIn) {
-        return false;
+        return null;
       }
       return getters.moviesDependencies;
     },

@@ -1,11 +1,7 @@
 import findGetter from './findGetter';
 import forEachModule from './forEachModule';
+import shallowEquals from 'shallow-equals';
 
-function shallowEquals(obj1, obj2) {
-  const keys = Object.keys(obj1);
-  if (Object.keys(obj2).length !== keys.length) return false;
-  return keys.every(k => obj1[k] === obj2[k]);
-}
 export default class Hagrid {
   constructor() {
     this.subscribers = {}; // { actionName: [vm._uid] }

@@ -58,6 +58,7 @@
     "vuex": ">=2.x"
   },
   "dependencies": {
-    "eslint-plugin-import": "^2.8.0"
+    "eslint-plugin-import": "^2.8.0",
+    "shallow-equals": "^1.0.0"
   }
 }
