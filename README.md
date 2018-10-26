@@ -73,7 +73,7 @@ For each component, we could listen for changes to each of the action's data dep
 
 ## The Solution
 
-We want to move to more declarative code from two sides. On one side, actions should _declare_ what data would cause them to re-render. On the other side, components should _declare_ what actions produce data that they care about. We can manage all the wiring with vue-hagrid.
+We want to move towards declarative code from two sides. On one side, actions should _declare_ what data would cause them to re-render. On the other side, components should _declare_ what actions produce data that they care about. We can manage all the wiring with vue-hagrid.
 
 ### In the store
 
@@ -199,3 +199,154 @@ Hagrid will only dispatch actions when the getter payload is truthy. That way, `
 ## For Example
 
 Check out the [/demo](/demo) directory to see how it's used. The app is running at [https://brianschiller.com/vue-hagrid](https://brianschiller.com/vue-hagrid).
+
+## Use Cases
+
+### Filtering and pagination
+
+This is the use case for which hagrid was _born_. Seriously. It was in Backbone.js, but this was where I first encountered the need for this kind of problem:
+
+> When any of these things change, refetch. But don't refetch 3 times just because 3 components care about the result.
+
+![](./imgs/filtering.jpg)
+
+Suppose you have a filter component. Any time a filter choice is altered, a new request should be sent out to find matching product. Simple enough, right? The filter component should just trigger a vuex action and pass along the parameters.
+
+But! Suppose you also have pagination, or sorting controls. They might be far enough away in the UI that it would be awkward or difficult to have a single component responsible for both of them.
+
+Now there are two or three components that need to kick off the same action in response to a change, and each of them is only aware of a piece of the state necessary to send out the request.
+
+Hagrid to the rescue:
+
+```javascript
+// modules/Filters.js
+export default {
+  state: {
+    department: null,
+    colors: 'ALL',
+    materials: 'ALL',
+    min_price_dollars: 0,
+    max_price_dollars: 200,
+    // etc...
+  },
+  // mutations, actions, getters, etc ...
+};
+
+// modules/Sorting.js
+export default {
+  state: {
+    order: 'popularity',
+    direction: 'ascending',
+  },
+  // mutations, actions, getters, etc ...
+};
+
+// modules/Pagination.js
+export default {
+  state: {
+    num_per_page: 20,
+    current_page: 1,
+  },
+  // mutations, actions, getters, etc ...
+};
+
+// modules/Products.js
+export default {
+  state: {
+    data: [],
+    status: 'unfetched',
+  },
+  getters: {
+    fetchProductOptions(state, getters, rootState) {
+      // return a falsy value here if we're not yet
+      // ready to fetch. The action will not be triggered.
+      if (!rootState.Filters.department)
+      return {
+        filters: rootState.Filters,
+        pagination: rootState.Pagination,
+        sorting: rootState.Sorting,
+      };
+    },
+  },
+  actions: {
+    fetchProducts(context, { filters, pagination, sorting }) {
+      // the value returned by the getter, if truthy, is passed
+      // as the parameter to the action.
+      // if the value returned by the getter is falsy, the action
+      // is not dispatched.
+
+      // ... actually call the api
+    },
+  },
+
+  hagridResources: {
+    fetchProducts: 'fetchProductOptions',
+  },
+};
+
+// components/ProductList.vue
+export default {
+  name: 'ProductList',
+  // hagrid will not dispatch actions if no component currently
+  // mounted cares about the action. Components must subscribe
+  // using `hagridActions` as below.
+  // If two components care about the result, the action will
+  // still be dispatched only once.
+  hagridActions: ['fetchProducts'],
+};
+```
+
+### Cascading fetches
+
+First, the user must login. Then, they must choose a project. Then, they can see what reports exist.
+
+One option would be to have the `login` action dispatch the `fetchProjects` on success, then have `fetchProjects` dispatch `fetchReports` on *its* success. This unpleasant coupling is avoidable with hagrid.
+
+```javascript
+// modules/Projects.js
+export default {
+  getters: {
+    readyToFetch(state, getters, rootState, rootGetters) {
+      // remember, actions are only triggered if
+      // the getter returns a truthy value.
+      return rootGetters.isLoggedIn;
+    },
+  },
+  actions: {
+    fetchProjects(context) {
+      fetch('/api/projects')
+      // ...
+    },
+    chooseProject({ commit }, project) {
+      commit('CHOOSE_PROJECT', project);
+    },
+  },
+  hagridResources: {
+    fetchProjects: 'readyToFetch',
+  },
+};
+
+// modules/Reports.js
+export default {
+  getters: {
+    readyToFetch(state, getters, rootState, rootGetters) {
+      // only fetch projects if we're both logged in,
+      // AND a project has been selected.
+      return rootGetters.isLoggedIn && rootGetters['Projects/selected'];
+    },
+  },
+  actions: {
+    fetchReports(context, project) {
+      fetch(`/api/reports?project_id=${project.id}`)
+      // ...
+    },
+  },
+  hagridResources: {
+    fetchReports: 'readyToFetch',
+  },
+};
+```
+
+### Clear state on logout
+
+(todo)
